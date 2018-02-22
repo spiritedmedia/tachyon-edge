@@ -181,6 +181,7 @@ module.exports.cacheProcessedImage = function( data ) {
 			.catch(function( err ) {
 				data.code = 'processed-image-not-cached';
 				data.reason = 'The processed image couldn\'t be cached on S3';
+				console.log( err );
 				return reject( data );
 			});
 	} ); // end Promise
@@ -243,6 +244,10 @@ module.exports.processImage = function( data ) {
 				}
 			}
 			image.rotate( rotation );
+
+			if ( metadata.format === 'jpg' ) {
+				data.obj.ContentType = 'image/jpeg';
+			}
 
 			// Convert gifs to pngs unless animated
 			if ( metadata.format === 'gif' ) {
