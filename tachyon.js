@@ -2,9 +2,21 @@ const 	AWS = require('aws-sdk'),
 		fs = require('fs');
 
 // We need to setup AWS configuration before instantiating an S3 object
+let configPath = '';
+let configPaths = [
+	'./config.json',      // Settings for AWS Lambda
+	'./local-config.json' // Settings for local version
+];
+for ( var i = 0; i < configPaths.length; i++ ) {
+	var path = configPaths[ i ];
+	if ( fs.existsSync( path ) ) {
+		configPath = path;
+		break;
+	}
+}
+
 let config = {};
-const configPath = './config.json';
-if ( fs.existsSync( configPath ) ) {
+if ( configPath ) {
 	config = JSON.parse( fs.readFileSync( configPath ) );
 	AWS.config.loadFromPath( configPath );
 }
