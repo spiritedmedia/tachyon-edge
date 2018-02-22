@@ -214,7 +214,8 @@ module.exports.putToS3 = function( args ) {
 		.putObject( {
 			Bucket: config.bucket,
 			Key: args.key,
-			Body: args.body
+			Body: args.body,
+			ACL: 'public-read'
 		} )
 		.promise();
 };
