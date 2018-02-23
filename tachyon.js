@@ -170,7 +170,8 @@ module.exports.cacheProcessedImage = function( data ) {
 	return new Promise(function( resolve, reject ) {
 		let args = {
 			key: data.S3Key,
-			body: data.obj.Body
+			body: data.obj.Body,
+			ContentType: data.obj.ContentType
 		};
 		self.putToS3( args )
 			.then(function(resp) {
@@ -211,13 +212,17 @@ module.exports.getFromS3 = function( key ) {
  */
 module.exports.putToS3 = function( args ) {
 	console.log( 'Put S3 Key: ', args.key );
+	let params = {
+		Bucket: config.bucket,
+		Key: args.key,
+		Body: args.body,
+		ACL: 'public-read'
+	};
+	if ( 'ContentType' in args ) {
+		params.ContentType = args.ContentType;
+	}
 	return S3
-		.putObject( {
-			Bucket: config.bucket,
-			Key: args.key,
-			Body: args.body,
-			ACL: 'public-read'
-		} )
+		.putObject(params)
 		.promise();
 };
 
@@ -245,8 +250,24 @@ module.exports.processImage = function( data ) {
 			}
 			image.rotate( rotation );
 
-			if ( metadata.format === 'jpg' ) {
-				data.obj.ContentType = 'image/jpeg';
+			// Set content type
+			switch( metadata.format ) {
+				case 'jpg':
+				case 'jpeg':
+					data.obj.ContentType = 'image/jpeg';
+					break;
+
+				case 'png':
+					data.obj.ContentType = 'image/png';
+					break;
+
+				case 'gif':
+					data.obj.ContentType = 'image/gif';
+					break;
+
+				case 'webp':
+					data.obj.ContentType = 'image/webp';
+					break;
 			}
 
 			// Convert gifs to pngs unless animated
