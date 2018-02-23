@@ -57,6 +57,37 @@ For more details checkout the [docs](https://engineering.hmn.md/projects/tachyon
  - No need to use the API Gateway service which saves money
  - Added a few more options for manipulating images (`rotate`, `grayscale`, `negative`)
 
+## Local Development
+To work with the Tachyon@Edge locally you need to perform the following steps:
+
+1. Make sure you have Node 6.10+ installed
+2. Install `libvips` on macOS: `brew install homebrew/science/vips --with-webp --with-graphicsmagick`
+3. Clone the repo: `git@github.com:spiritedmedia/tachyon-edge.git`
+4. Install the node module dependencies: `npm install`
+5. Populate a `local-config.json` with the AWS S3 credentials, region, and bucket name you want to use, in the following format:
+```
+{
+   	"accessKeyId": "***",
+	"secretAccessKey": "****",
+	"region": "us-east-1",
+	"bucket": "my-bucket-name"
+}
+```
+6. Start the server: `node server.js [port]`
+7. Visit [http://localhost:8080/]() to confirm it is working
+8. Pass a path to a file in the bucket like [http://localhost:8080/test-files/grid.jpg?w=250]() which should be resized to 250px wide
+
+### Building the Docker Image and AWS Lambda Package
+A docker file is included for building the `node_modules` for the AWS Lambda function. Follow these steps:
+
+1. Download [Docker](https://www.docker.com/) and make sure it is running 
+2. Run `npm run-script build-docker` to build the docker image (you only need to do this once)
+3. Run `npm run-script build-node-modules` to compile the node modules for an Ubuntu Linux environment
+4. Edit `config.json` to specify which S3 bucket you want the Lambda function to use  
+5. Run `npm run-script build-zip` to build a zip file called `lambda.zip`
+6. Upload `lambda.zip` to a bucket on S3
+7. Update the lambda function via an S3 URL like [https://s3.amazonaws.com/my-bucket-name/lambda.zip]()
+
 ## Credits
 Props to [Human Made](https://humanmade.com/) for the original [Tachyon project](https://engineering.hmn.md/projects/tachyon/) written and maintained by [Joe Hoyle](https://github.com/joehoyle).
 
