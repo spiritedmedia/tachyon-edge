@@ -1,11 +1,12 @@
-const 	AWS = require('aws-sdk'),
-		fs = require('fs');
+const 	AWS        = require('aws-sdk'),
+		fs         = require('fs'),
+		isAnimated = require('animated-gif-detector');
 
 // We need to setup AWS configuration before instantiating an S3 object
 let configPath = '';
 let configPaths = [
-	'./config.json',      // Settings for AWS Lambda
-	'./local-config.json' // Settings for local version
+	'./local-config.json', // Settings for local version
+	'./config.json'        // Settings for AWS Lambda
 ];
 for ( var i = 0; i < configPaths.length; i++ ) {
 	var path = configPaths[ i ];
