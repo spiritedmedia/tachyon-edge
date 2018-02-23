@@ -275,6 +275,7 @@ module.exports.processImage = function( data ) {
 				if ( isAnimated( buffer ) ) {
 					data.code = 'animated-gif';
 					data.reason = 'The image being processed is an animated gif (unprocessable)';
+					data.obj.Body = '';
 					return reject( data );
 				} else {
 					image.png();
