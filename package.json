@@ -6,7 +6,7 @@
     "url": "https://github.com/spiritedmedia/tachyon-edge.git"
   },
   "description": "Tachyon for use in AWS Lambda@Edge for dynamically resizing images",
-  "main": "index.js",
+  "main": "tachyon.js",
   "scripts": {
     "build-docker": "docker build . -t tachyon-build",
     "build-node-modules": "rm -R node_modules ; docker run -v `pwd`:/build -t tachyon-build",
