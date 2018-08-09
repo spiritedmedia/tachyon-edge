@@ -88,7 +88,7 @@ For more details checkout the [docs](https://engineering.hmn.md/projects/tachyon
      - Smooth Streaming: `No`
      - Restrict Viewer Access (Use Signed URLs or Signed Cookies): `No`
      - Lambda Function Associations Event Type: `Origin Request`
-     - Lambda Function ARN: Paste the ARN value you copied earlier*
+     - Lambda Function ARN: Paste the ARN value you copied earlier \*
   - For Distribution Settings
      - Price Class: Whatever makes sense for your audience
      - AWS WAF Web ACL: `None`
@@ -100,7 +100,7 @@ For more details checkout the [docs](https://engineering.hmn.md/projects/tachyon
   - Test it out and request a URL with query strings like `?w=100&h=80` appended
 
 
- * You need to add the version number of the Lambda function to the end of the ARN like `arn:aws:lambda:us-east-1:000000000000:function:your-function-name:1` for version 1 of the Lambda function. Every time you publish a new version you need to edit your CloudFront distribution and change this value.
+ \* You need to add the version number of the Lambda function to the end of the ARN like `arn:aws:lambda:us-east-1:000000000000:function:your-function-name:1` for version 1 of the Lambda function. Every time you publish a new version you need to edit your CloudFront distribution and change this value.
 
 ## Local Development
 To work with the Tachyon@Edge locally you need to perform the following steps:
