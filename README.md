@@ -3,7 +3,7 @@ Tachyon@Edge is a fork of [Tachyon](https://engineering.hmn.md/projects/tachyon/
 - Runs on Amazon Web Services (using CloudFront and Lambda@Edge.)
 - Expects original image files to be stored on Amazon S3.
 
-Tachyon works best with WordPress, coupled with [S3 Uploads](github.com/humanmade/s3-uploads) and the [Tachyon Plugin](https://github.com/humanmade/tachyon-plugin).
+Tachyon works best with WordPress, coupled with [S3 Uploads](https://github.com/humanmade/s3-uploads) and the [Tachyon Plugin](https://github.com/humanmade/tachyon-plugin).
 
 ![](screenshot.png)
 
