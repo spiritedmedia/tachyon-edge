@@ -9,10 +9,6 @@ Tachyon works best with WordPress, coupled with [S3 Uploads](github.com/humanmad
 
 ---
 
-## Installing
-
-TKTK
-
 ## Using
 
 Tachyon provides a simple HTTP interface in the form of:
@@ -21,7 +17,7 @@ Tachyon provides a simple HTTP interface in the form of:
 
 It's really that simple!
 
-Requests that aren't images (gif, jpg, png, webp) get passed through to the S3 bucket for CloudFront to serve as is. Images can be processed via query strings. 
+Requests that aren't images (gif, jpg, png, webp) get passed through to the S3 bucket for CloudFront to serve as is. Images can be processed via query strings.
 
 #### Args Reference
 
@@ -39,7 +35,7 @@ Requests that aren't images (gif, jpg, png, webp) get passed through to the S3 b
 |`flip`|Boolean, 1|Flip the image vertically.|
 |`flop`|Boolean, 1|Flip the image horizontally.|
 |`rotate`|0, 90, 180, 270| Rotate the image a certain number of degrees.|
-|`grayscale` `greyscale`| Boolean, 1|Convert the image to grayscale| 
+|`grayscale` `greyscale`| Boolean, 1|Convert the image to grayscale|
 
 For more details checkout the [docs](https://engineering.hmn.md/projects/tachyon/).
 
@@ -47,7 +43,7 @@ For more details checkout the [docs](https://engineering.hmn.md/projects/tachyon
  - A request comes to CloudFront
  - A Lambda@Edge function intercepts the request form CloudFront to the origin server (Amazon S3 bucket)
  - The Lambda function handles resizing images (files that end with .jpg, .gif, .png, or .webp) and saving them to a directory in the S3 bucket (`/resized/`)
- - The request to the origin is modified allowing CloudFront to serve the processed image 
+ - The request to the origin is modified allowing CloudFront to serve the processed image
 
 ## Differences from Tachyon
  - By using Lambda@Edge functions we can manipulate a request to the origin server rather than handling the serving of the image within the Lambda function itslef
@@ -56,6 +52,55 @@ For more details checkout the [docs](https://engineering.hmn.md/projects/tachyon
  - Non-image requests are passed through to the S3 bucket
  - No need to use the API Gateway service which saves money
  - Added a few more options for manipulating images (`rotate`, `grayscale`, `negative`)
+
+ ## Installing
+
+ ### Configuration
+  - Download a zip of the [latest release](https://github.com/spiritedmedia/tachyon-edge/releases)
+  - Unzip it, edit `config.json` with your own region and bucket values
+  - Zip the folder back up and upload it to an S3 bucket
+
+ ### Permissions
+  - In [AWS IAM](https://console.aws.amazon.com/iam/home) create a new role for your Lambda function
+  - Attach the `CloudWatchLogsFullAccess`, `AWSLambdaExecute`, and `CloudFrontReadOnlyAccess` policies to the role
+  - Attach a policy granting access to your bucket containing the media
+
+ ### AWS Lambda Function
+  - Create a [new Lambda function](https://console.aws.amazon.com/lambda/home)
+  - Set the runtime value to `Node.js 6.10`
+  - Associate the existing role you created in the previous steps to your Lambda function
+  - In the Function Code panel, select `Upload a File from Amazon S3`
+  - Paste a link to the zip file you uploaded to S3 in the previous steps into the `S3 link URL` field
+  - Change the Handler field value to `lambda-handler.handler`
+  - Under the Basic Settings panel I set Memory (MB) to `256 MB` and timeout to `30 sec`
+  - At the top of the page click on the Actions dropdown and select `Publish New Version`
+  - Give your new version a Description
+  - Copy the ARN value in the upper right of the function page (it looks like `arn:aws:lambda:us-east-1:000000000000:function:your-function-name`), you will need it later
+
+ ### CloudFront
+  - Create a new CloudFront distribution (Web delivery method, not RTMP)
+  - Select the Amazon S3 bucket holding your media as the Origin Domain Name
+  - For Default Cache Behavior Settings enter the following:
+     - Viewer Protocol Policy: `Redirect HTTP to HTTPS`
+     - Allowed HTTP Methods: `GET, HEAD`
+     - Forward Cookies: `None (Improves Caching)`
+     - Query String Forwarding and Caching: `Forward all, cache based on all`
+     - Smooth Streaming: `No`
+     - Restrict Viewer Access (Use Signed URLs or Signed Cookies): `No`
+     - Lambda Function Associations Event Type: `Origin Request`
+     - Lambda Function ARN: Paste the ARN value you copied earlier*
+  - For Distribution Settings
+     - Price Class: Whatever makes sense for your audience
+     - AWS WAF Web ACL: `None`
+     - Alternate Domain Names (CNAMEs): Enter any alternate domain names you want to map on to CloudFront (one per line)
+     - SSL Certificate: `Default CloudFront Certificate (*.cloudfront.net)`
+     - Supported HTTP Versions: `HTTP/2, HTTP/1.1, HTTP/1.0`
+     - Distribution State: `Enabled`
+  - Click the blue `Create Distribution` button and wait
+  - Test it out and request a URL with query strings like `?w=100&h=80` appended
+
+
+ * You need to add the version number of the Lambda function to the end of the ARN like `arn:aws:lambda:us-east-1:000000000000:function:your-function-name:1` for version 1 of the Lambda function. Every time you publish a new version you need to edit your CloudFront distribution and change this value.
 
 ## Local Development
 To work with the Tachyon@Edge locally you need to perform the following steps:
@@ -80,7 +125,7 @@ To work with the Tachyon@Edge locally you need to perform the following steps:
 ### Building the Docker Image and AWS Lambda Package
 A docker file is included for building the `node_modules` for the AWS Lambda function. Follow these steps:
 
-1. Download [Docker](https://www.docker.com/) and make sure it is running 
+1. Download [Docker](https://www.docker.com/) and make sure it is running
 2. Run `npm run-script build-docker` to build the docker image (you only need to do this once)
 3. Run `npm run-script build-node-modules` to compile the node modules for an Ubuntu Linux environment
 4. Edit `config.json` to specify which S3 bucket you want the Lambda function to use  
